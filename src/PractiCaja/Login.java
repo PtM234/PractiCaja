@@ -12,6 +12,7 @@ package PractiCaja;
 public class Login extends javax.swing.JFrame {
     
     private boolean usuarioRegistro = false, passRegistro = false, usuarioLogin = false, passLogin = false;
+    private String nombre;
     private Cuenta cliente;
 
     /**

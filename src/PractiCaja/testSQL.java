@@ -30,9 +30,10 @@ public class testSQL {
     private void conectarYVer() throws ClassNotFoundException{
         try{
             // load and register JDBC driver for MySQL
+            String user = "Pedro Perez";
             conn = DriverManager.getConnection("jdbc:mysql://localhost/clientes","root","");
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT * from cuentas");
+            rs = stmt.executeQuery("SELECT * from cuentas WHERE nombreCliente = '" + user + "'");
             rsmd = rs.getMetaData();
             int columnas = rsmd.getColumnCount();
             
@@ -42,9 +43,10 @@ public class testSQL {
             
             while(rs.next()){
                 for(int i = 1; i <= columnas; i++){
-                    if (i > 1) System.out.print(",  ");
+//                    if (i > 1) System.out.print(",  ");
                     String columnValue = rs.getString(i);
-                    System.out.print(rsmd.getColumnName(i) + ":" + columnValue);
+                    System.out.print(rsmd.getColumnName(i) + ": " + columnValue);
+                    System.out.println("");
                 } 
             }
             

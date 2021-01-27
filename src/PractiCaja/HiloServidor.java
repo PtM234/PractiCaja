@@ -19,6 +19,9 @@ public class HiloServidor {
     private Socket cliente;
     private DataInputStream dataInput;
     private DataOutputStream dataOutput;
+    private String nombre, pass;
+    private int opcLog, opcMenu;
+    private boolean exito = false;
     
     public HiloServidor(Socket client){
         this.cliente = client;
@@ -29,7 +32,7 @@ public class HiloServidor {
             dataInput = new DataInputStream(cliente.getInputStream());
             dataOutput = new DataOutputStream(cliente.getOutputStream());
             
-            
+            opcLog = dataInput.readInt();
             
         } catch (IOException e){
             e.printStackTrace();
