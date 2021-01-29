@@ -5,15 +5,29 @@
  */
 package PractiCaja;
 
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author PtM
  */
-public class Login extends javax.swing.JFrame {
+public class Login extends javax.swing.JFrame implements Serializable{
     
     private boolean usuarioRegistro = false, passRegistro = false, usuarioLogin = false, passLogin = false;
     private String nombre;
     private Cuenta cliente;
+    private static Connection conn = null;
+    private static Statement stmt = null;
+    private static ResultSet rs = null; 
+    private static ResultSetMetaData rsmd = null;
 
     /**
      * Creates new form Login
@@ -24,6 +38,28 @@ public class Login extends javax.swing.JFrame {
         jButtonLogin.setEnabled(false);
     }
 
+    
+    public boolean revisarUser(String usuario){
+        try {
+            //Revisamos en BD si el usuario existe:
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/clientes","root","");
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT * from cuentas WHERE nombreCliente = '" + usuario + "'");
+            rsmd = rs.getMetaData();
+            int columnas = rsmd.getColumnCount();
+            
+            if (rs.getString("nombreCliente").equals(usuario)){
+                System.out.println(rs.getString("nombreCliente"));
+                return true;
+            } 
+        } catch (SQLException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            return false;
+    }
+    public void enviarDatosRegistro(Cuenta c, String password){
+        
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -87,8 +123,8 @@ public class Login extends javax.swing.JFrame {
                             .addComponent(jLabel3))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextFieldUsuarioRegistro, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
-                            .addComponent(jPasswordRegistro))
+                            .addComponent(jPasswordRegistro, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
+                            .addComponent(jTextFieldUsuarioRegistro))
                         .addGap(18, 18, 18)
                         .addComponent(jLabelRevisarUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -144,18 +180,20 @@ public class Login extends javax.swing.JFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(104, 104, 104)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel6)
-                    .addComponent(jLabel5))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jTextFieldUsuarioLogin, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPasswordFieldLogin, javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jButtonLogin)
-                        .addGap(13, 13, 13)))
-                .addContainerGap(199, Short.MAX_VALUE))
+                        .addGap(104, 104, 104)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel5))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jPasswordFieldLogin, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
+                            .addComponent(jTextFieldUsuarioLogin, javax.swing.GroupLayout.Alignment.LEADING)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(195, 195, 195)
+                        .addComponent(jButtonLogin)))
+                .addContainerGap(193, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -168,9 +206,9 @@ public class Login extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(jPasswordFieldLogin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(40, 40, 40)
+                .addGap(46, 46, 46)
                 .addComponent(jButtonLogin)
-                .addContainerGap(77, Short.MAX_VALUE))
+                .addContainerGap(71, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Login", jPanel2);
@@ -216,8 +254,12 @@ public class Login extends javax.swing.JFrame {
         //Como se va a registrar, necesitamos mandar los datos a la BD
         //Como apenas se registró el saldo que tendrá la cuenta es de 0
         //Mandar la contraseña a la BD
-        cliente.setSaldo(0);
-        cliente.setNombreCliente(jTextFieldUsuarioRegistro.getText());
+        if(revisarUser(jTextFieldUsuarioRegistro.getText())){
+                jLabelRevisarUsuario.setText("El Usuario ya existe!");
+            } else{
+            cliente.setSaldo(0);
+            cliente.setNombreCliente(jTextFieldUsuarioRegistro.getText());
+        }
         
     }//GEN-LAST:event_jButtonRegistroActionPerformed
 
