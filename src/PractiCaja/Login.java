@@ -5,7 +5,13 @@
  */
 package PractiCaja;
 
-import java.io.Serializable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -19,15 +25,22 @@ import java.util.logging.Logger;
  *
  * @author PtM
  */
-public class Login extends javax.swing.JFrame implements Serializable{
+public class Login extends javax.swing.JFrame {
     
     private boolean usuarioRegistro = false, passRegistro = false, usuarioLogin = false, passLogin = false;
-    private String nombre;
+    private String nombre, password;
     private Cuenta cliente;
+    private Socket socketCliente;
     private static Connection conn = null;
     private static Statement stmt = null;
     private static ResultSet rs = null; 
     private static ResultSetMetaData rsmd = null;
+    private InputStream inputStream;
+    private DataOutputStream salida;
+    private OutputStream outputStream;
+    private DataInputStream entrada;
+    private ObjectOutputStream objetoSalida;
+    
 
     /**
      * Creates new form Login
@@ -36,22 +49,35 @@ public class Login extends javax.swing.JFrame implements Serializable{
         initComponents();
         jButtonRegistro.setEnabled(false);
         jButtonLogin.setEnabled(false);
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/clientes","root","");
+            socketCliente = new Socket("localhost", 1234);
+            outputStream = socketCliente.getOutputStream();
+            inputStream = socketCliente.getInputStream();
+            objetoSalida = new ObjectOutputStream(outputStream);
+            salida = new DataOutputStream(outputStream);
+            entrada = new DataInputStream(inputStream);
+        } catch (SQLException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     
     public boolean revisarUser(String usuario){
         try {
             //Revisamos en BD si el usuario existe:
-            conn = DriverManager.getConnection("jdbc:mysql://localhost/clientes","root","");
             stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT * from cuentas WHERE nombreCliente = '" + usuario + "'");
             rsmd = rs.getMetaData();
             int columnas = rsmd.getColumnCount();
-            
+            System.out.println(columnas);
+            if(rs.next()){      //Se posiciona el cursor en la columna donde está el resultado, si es que hay resultados
             if (rs.getString("nombreCliente").equals(usuario)){
-                System.out.println(rs.getString("nombreCliente"));
                 return true;
-            } 
+            }
+            }
         } catch (SQLException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -130,7 +156,7 @@ public class Login extends javax.swing.JFrame implements Serializable{
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(190, 190, 190)
                         .addComponent(jButtonRegistro)
-                        .addGap(0, 190, Short.MAX_VALUE)))
+                        .addGap(0, 243, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -193,7 +219,7 @@ public class Login extends javax.swing.JFrame implements Serializable{
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(195, 195, 195)
                         .addComponent(jButtonLogin)))
-                .addContainerGap(193, Short.MAX_VALUE))
+                .addContainerGap(246, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -217,7 +243,7 @@ public class Login extends javax.swing.JFrame implements Serializable{
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -254,11 +280,30 @@ public class Login extends javax.swing.JFrame implements Serializable{
         //Como se va a registrar, necesitamos mandar los datos a la BD
         //Como apenas se registró el saldo que tendrá la cuenta es de 0
         //Mandar la contraseña a la BD
+        System.out.println(jTextFieldUsuarioRegistro.getText());
+        password = String.valueOf(jPasswordRegistro.getPassword());
+        cliente = new Cuenta(0, jTextFieldUsuarioRegistro.getText(), 0);
         if(revisarUser(jTextFieldUsuarioRegistro.getText())){
-                jLabelRevisarUsuario.setText("El Usuario ya existe!");
+                jLabelRevisarUsuario.setText("¡El Usuario ya existe! Por favor loggeate");
             } else{
-            cliente.setSaldo(0);
-            cliente.setNombreCliente(jTextFieldUsuarioRegistro.getText());
+            try {
+                salida.writeInt(1);
+                System.out.println("Se envió el #");
+                objetoSalida.writeObject(cliente);
+                System.out.println("Se envió el objeto");
+                salida.writeUTF(password);
+                System.out.println("Se envió la pass!");
+                if(entrada.readBoolean()){
+                    //Crear la nueva ventana principal
+                    System.out.println("Se supone que ya estuvo");
+                } else{
+                    System.out.println("Hubo un problema! Que feo cuando hay problemas");
+                }
+                
+            } catch (IOException ex) {
+                Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         }
         
     }//GEN-LAST:event_jButtonRegistroActionPerformed
