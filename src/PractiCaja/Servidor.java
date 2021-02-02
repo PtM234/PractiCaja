@@ -34,7 +34,7 @@ public class Servidor {
                 contador++;
                 System.out.println("Se conectó el cliente:" + contador+ " Desde ip: " + client.getInetAddress());
                 HiloServidor hs = new HiloServidor(client);
-                //hs.start();
+                hs.run();
             } catch (IOException e){
                 e.printStackTrace();
             }

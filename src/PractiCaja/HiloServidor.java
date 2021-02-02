@@ -52,10 +52,12 @@ public class HiloServidor{
     
     public void run(){
         try{
+            System.out.println("Entro aaaaaaaki");
             dataInput = new DataInputStream(cliente.getInputStream());
             dataOutput = new DataOutputStream(cliente.getOutputStream());
-            
+            System.out.println("Antes de la opción");
             opcLog = dataInput.readInt();
+            System.out.println("Opción #: " + opcLog);
             System.out.println("Entró aquí");
             
             /* En este caso va a haber 2 opciones disponibles:
@@ -64,6 +66,7 @@ public class HiloServidor{
             */
             switch(opcLog){
                 case 1: //Registrar usuario
+                    System.out.println("Registrando usuario!");
                     inputStream = cliente.getInputStream();
                     objectInputStream = new ObjectInputStream(inputStream);
                     cuenta = (Cuenta) objectInputStream.readObject();
