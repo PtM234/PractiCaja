@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -45,7 +44,11 @@ public class HiloServidor{
             conn = DriverManager.getConnection("jdbc:mysql://localhost/clientes","root","");
             stmt = conn.createStatement();
             System.out.println("Entró aquí 11111");
+            dataInput = new DataInputStream(cliente.getInputStream());
+            dataOutput = new DataOutputStream(cliente.getOutputStream());
         } catch (SQLException ex) {
+            Logger.getLogger(HiloServidor.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(HiloServidor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -53,8 +56,7 @@ public class HiloServidor{
     public void run(){
         try{
             System.out.println("Entro aaaaaaaki");
-            dataInput = new DataInputStream(cliente.getInputStream());
-            dataOutput = new DataOutputStream(cliente.getOutputStream());
+            
             System.out.println("Antes de la opción");
             opcLog = dataInput.readInt();
             System.out.println("Opción #: " + opcLog);

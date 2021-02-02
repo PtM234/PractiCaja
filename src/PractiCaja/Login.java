@@ -52,11 +52,9 @@ public class Login extends javax.swing.JFrame {
         try {
             conn = DriverManager.getConnection("jdbc:mysql://localhost/clientes","root","");
             socketCliente = new Socket("localhost", 1234);
-            outputStream = socketCliente.getOutputStream();
-            inputStream = socketCliente.getInputStream();
             objetoSalida = new ObjectOutputStream(outputStream);
-            salida = new DataOutputStream(outputStream);
-            entrada = new DataInputStream(inputStream);
+            salida = new DataOutputStream(socketCliente.getOutputStream());
+            entrada = new DataInputStream(socketCliente.getInputStream());
         } catch (SQLException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -83,9 +81,7 @@ public class Login extends javax.swing.JFrame {
         }
             return false;
     }
-    public void enviarDatosRegistro(Cuenta c, String password){
-        
-    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
