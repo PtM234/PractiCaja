@@ -76,7 +76,7 @@ public class HiloServidor{
                 case 2: //Loggear usuario
                     do{
                         System.out.println("Tratando de loggear Usuario");
-                        cuenta.setNombreCliente(pass);
+                        cuenta.setNombreCliente(entrada.readUTF());
                         pass = entrada.readUTF();
                         if(cuenta.revisarUsuario(conn, stmt, pass)){
                             exito = true;

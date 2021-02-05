@@ -59,6 +59,7 @@ public class Login extends javax.swing.JFrame {
             entrada = new DataInputStream(inputStream);
             
             
+            
         } catch (SQLException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -328,9 +329,10 @@ public class Login extends javax.swing.JFrame {
                     salida.writeUTF(password);
                     if(entrada.readBoolean()){
                         JOptionPane.showMessageDialog(null, "Exito!");
-                        cliente.setId_Cuenta(entrada.readInt());
-                        cliente.setSaldo(entrada.readInt());
-                        System.out.println("Cliente:" + cliente.getNombreCliente() + " id: " + cliente.getId_Cuenta() + " Saldo: " + cliente.getSaldo());
+                        int idCuenta = entrada.readInt();
+                        int saldo = entrada.readInt();
+                        cliente = new Cuenta(idCuenta, nombre, saldo);
+                        System.out.println("ID : " + cliente.getId_Cuenta() + "Cliente:" + cliente.getNombreCliente() + " Saldo: " + cliente.getSaldo());
                         //Crear nueva ventana y pasar cliente como parametro
                     } else{
                         JOptionPane.showMessageDialog(null, "La contraseña no coincide!");

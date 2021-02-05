@@ -90,7 +90,7 @@ public class Cuenta implements Serializable{
             rsmd = rs.getMetaData();
             rs.next(); //Se posiciona el cursor en la columna donde está el resultado
             
-            if (rs.getString("nombreCliente").equals(this.nombreCliente)){
+            if (rs.getString("nombreCliente").equals(nombreCliente)){
                 if(rs.getString("password").equals(password)){
                     this.id_Cuenta = Integer.parseInt(rs.getString("idCuenta"));
                     this.saldo = Integer.parseInt(rs.getString("saldo"));
