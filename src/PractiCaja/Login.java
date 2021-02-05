@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -39,7 +40,7 @@ public class Login extends javax.swing.JFrame {
     private DataOutputStream salida;
     private OutputStream outputStream;
     private DataInputStream entrada;
-    private ObjectOutputStream objetoSalida;
+    //private ObjectOutputStream objetoSalida;
     
 
     /**
@@ -52,9 +53,12 @@ public class Login extends javax.swing.JFrame {
         try {
             conn = DriverManager.getConnection("jdbc:mysql://localhost/clientes","root","");
             socketCliente = new Socket("localhost", 1234);
-            objetoSalida = new ObjectOutputStream(outputStream);
-            salida = new DataOutputStream(socketCliente.getOutputStream());
-            entrada = new DataInputStream(socketCliente.getInputStream());
+            outputStream = socketCliente.getOutputStream();
+            inputStream = socketCliente.getInputStream();
+            salida = new DataOutputStream(outputStream);
+            entrada = new DataInputStream(inputStream);
+            
+            
         } catch (SQLException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -277,29 +281,31 @@ public class Login extends javax.swing.JFrame {
         //Como apenas se registró el saldo que tendrá la cuenta es de 0
         //Mandar la contraseña a la BD
         System.out.println(jTextFieldUsuarioRegistro.getText());
+        nombre = jTextFieldUsuarioRegistro.getText();
         password = String.valueOf(jPasswordRegistro.getPassword());
-        cliente = new Cuenta(0, jTextFieldUsuarioRegistro.getText(), 0);
+        cliente = new Cuenta(0, nombre, 0);
         if(revisarUser(jTextFieldUsuarioRegistro.getText())){
                 jLabelRevisarUsuario.setText("¡El Usuario ya existe! Por favor loggeate");
-            } else{
-            try {
-                salida.writeInt(1);
-                System.out.println("Se envió el #");
-                objetoSalida.writeObject(cliente);
-                System.out.println("Se envió el objeto");
-                salida.writeUTF(password);
-                System.out.println("Se envió la pass!");
-                if(entrada.readBoolean()){
-                    //Crear la nueva ventana principal
-                    System.out.println("Se supone que ya estuvo");
-                } else{
-                    System.out.println("Hubo un problema! Que feo cuando hay problemas");
-                }
+        } else{
+            try{
                 
+                
+                salida.writeInt(1);                                 //Opción
+                salida.writeInt(cliente.getId_Cuenta());            //idCliente
+                salida.writeUTF(nombre);                            //nombreCliente
+                salida.writeUTF(password);                          //contraseña
+                salida.writeInt(cliente.getSaldo());                //saldoCliente
+                if(entrada.readBoolean()){
+                    System.out.println("Todo bien!");
+                    JOptionPane.showMessageDialog(null, "Exito!");
+                    //Crear nueva ventana
+                } else{
+                    System.out.println("Hubo un problema, uno muy feo");
+                    
+                }
             } catch (IOException ex) {
                 Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
         }
         
     }//GEN-LAST:event_jButtonRegistroActionPerformed
@@ -310,6 +316,29 @@ public class Login extends javax.swing.JFrame {
         //Si los datos son iguales a los que el cliente metió, acceder a la siguiente pantalla.
         //Si no, necesitamos sacar un Alert
         //Si las credenciales de acceso son validas, dar estas al objeto cliente
+            nombre = jTextFieldUsuarioLogin.getText();
+            password = String.valueOf(jPasswordFieldLogin.getPassword());
+            if (!revisarUser(nombre)){
+                JOptionPane.showMessageDialog(null, "El usuario no existe, por favor registrate!");
+                System.out.println("El usuario no existe, por favor registrate");
+            } else{
+                try {
+                    salida.writeInt(2);
+                    salida.writeUTF(nombre);
+                    salida.writeUTF(password);
+                    if(entrada.readBoolean()){
+                        JOptionPane.showMessageDialog(null, "Exito!");
+                        cliente.setId_Cuenta(entrada.readInt());
+                        cliente.setSaldo(entrada.readInt());
+                        System.out.println("Cliente:" + cliente.getNombreCliente() + " id: " + cliente.getId_Cuenta() + " Saldo: " + cliente.getSaldo());
+                        //Crear nueva ventana y pasar cliente como parametro
+                    } else{
+                        JOptionPane.showMessageDialog(null, "La contraseña no coincide!");
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
     }//GEN-LAST:event_jButtonLoginActionPerformed
 
     /**

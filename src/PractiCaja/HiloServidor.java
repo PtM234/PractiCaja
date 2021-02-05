@@ -29,13 +29,13 @@ public class HiloServidor{
     private Connection conn;
     private Statement stmt;
     private Cuenta cuenta;
-    private DataInputStream dataInput;
+    private DataInputStream entrada;
     private InputStream inputStream;
-    private DataOutputStream dataOutput;
+    private DataOutputStream salida;
     private OutputStream outputStream;
-    private ObjectInputStream objectInputStream;
+//    private ObjectInputStream objectInputStream;
     private String pass;
-    private int opcLog, opcMenu;
+    private int opcMenu, opcLog;
     private boolean exito = false;
     
     public HiloServidor(Socket c){
@@ -43,24 +43,21 @@ public class HiloServidor{
             this.cliente = c;
             conn = DriverManager.getConnection("jdbc:mysql://localhost/clientes","root","");
             stmt = conn.createStatement();
-            System.out.println("Entró aquí 11111");
-            dataInput = new DataInputStream(cliente.getInputStream());
-            dataOutput = new DataOutputStream(cliente.getOutputStream());
+            cuenta = new Cuenta(0, "", 0);
+            
         } catch (SQLException ex) {
             Logger.getLogger(HiloServidor.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(HiloServidor.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }
     
     public void run(){
         try{
-            System.out.println("Entro aaaaaaaki");
             
-            System.out.println("Antes de la opción");
-            opcLog = dataInput.readInt();
+            entrada = new DataInputStream(cliente.getInputStream());
+            salida = new DataOutputStream(cliente.getOutputStream());           
+            opcLog = entrada.readInt();
             System.out.println("Opción #: " + opcLog);
-            System.out.println("Entró aquí");
+
             
             /* En este caso va a haber 2 opciones disponibles:
                 1.- Registrar al Usuario 
@@ -69,33 +66,36 @@ public class HiloServidor{
             switch(opcLog){
                 case 1: //Registrar usuario
                     System.out.println("Registrando usuario!");
-                    inputStream = cliente.getInputStream();
-                    objectInputStream = new ObjectInputStream(inputStream);
-                    cuenta = (Cuenta) objectInputStream.readObject();
-                    System.out.println("Recibí el objeto");
-                    pass = dataInput.readUTF();
+                    cuenta.setId_Cuenta(entrada.readInt());
+                    cuenta.setNombreCliente(entrada.readUTF());
+                    pass = entrada.readUTF();
+                    cuenta.setSaldo(entrada.readInt());
                     cuenta.insertarUsuario(conn, stmt, pass);
-                    dataOutput.writeBoolean(true);
+                    salida.writeBoolean(true);
                     break;
                 case 2: //Loggear usuario
                     do{
-                    inputStream = cliente.getInputStream();
-                    objectInputStream = new ObjectInputStream(inputStream);
-                    cuenta = (Cuenta) objectInputStream.readObject();
-                    pass = dataInput.readUTF();
-                    if(cuenta.revisarUsuario(conn, stmt, pass)){
-                        dataOutput.writeBoolean(true);
-                        exito = true;
-                    } else{
-                        dataOutput.writeBoolean(false);
-                    }
+                        System.out.println("Tratando de loggear Usuario");
+                        cuenta.setNombreCliente(pass);
+                        pass = entrada.readUTF();
+                        if(cuenta.revisarUsuario(conn, stmt, pass)){
+                            exito = true;
+                            salida.writeBoolean(true);
+                            salida.writeInt(cuenta.getId_Cuenta());
+                            salida.writeInt(cuenta.getSaldo());
+                            
+                        }else{
+                            salida.writeBoolean(exito);
+                        }
+                        
+
                     }while(!exito);
                     break;
             }
         } catch (IOException e){
             e.printStackTrace();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(HiloServidor.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            System.out.println("Fin del hilo" + this.toString());
         }
     }
 }

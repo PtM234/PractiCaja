@@ -76,7 +76,7 @@ public class Cuenta implements Serializable{
     
     public void insertarUsuario(Connection conn, Statement stmt, String password){
         try {
-            stmt.executeUpdate("INSERT INTO cuentas VALUES (null, '"+ this.nombreCliente +"', '"+ password +"', 0");
+            stmt.executeUpdate("INSERT INTO cuentas VALUES (null, '"+ this.nombreCliente +"', '"+ password +"', 0)");
         } catch (SQLException ex) {
             Logger.getLogger(Cuenta.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -92,6 +92,8 @@ public class Cuenta implements Serializable{
             
             if (rs.getString("nombreCliente").equals(this.nombreCliente)){
                 if(rs.getString("password").equals(password)){
+                    this.id_Cuenta = Integer.parseInt(rs.getString("idCuenta"));
+                    this.saldo = Integer.parseInt(rs.getString("saldo"));
                     return true;
                 }
             } else{
