@@ -31,6 +31,10 @@ public class Cuenta implements Serializable{
         this.nombreCliente = Cliente;
         this.saldo = saldoCliente;
     }
+    
+    public Cuenta(){
+        System.out.println("Se inició en blanco");
+    }
 
     /**
      * @return the id_Cuenta

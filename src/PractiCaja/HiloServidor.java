@@ -44,17 +44,25 @@ public class HiloServidor{
             conn = DriverManager.getConnection("jdbc:mysql://localhost/clientes","root","");
             stmt = conn.createStatement();
             cuenta = new Cuenta(0, "", 0);
+            entrada = new DataInputStream(cliente.getInputStream());
+            salida = new DataOutputStream(cliente.getOutputStream());    
+            
             
         } catch (SQLException ex) {
+            Logger.getLogger(HiloServidor.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(HiloServidor.class.getName()).log(Level.SEVERE, null, ex);
         } 
     }
     
     public void run(){
+        menuLog();
+        menuPrincipal();
+    }
+    
+    public void menuLog(){
         try{
             
-            entrada = new DataInputStream(cliente.getInputStream());
-            salida = new DataOutputStream(cliente.getOutputStream());           
             opcLog = entrada.readInt();
             System.out.println("Opción #: " + opcLog);
 
@@ -71,7 +79,9 @@ public class HiloServidor{
                     pass = entrada.readUTF();
                     cuenta.setSaldo(entrada.readInt());
                     cuenta.insertarUsuario(conn, stmt, pass);
+                    cuenta.revisarUsuario(conn, stmt, pass);
                     salida.writeBoolean(true);
+                    salida.writeInt(cuenta.getId_Cuenta());
                     break;
                 case 2: //Loggear usuario
                     do{
@@ -95,7 +105,40 @@ public class HiloServidor{
         } catch (IOException e){
             e.printStackTrace();
         } finally {
-            System.out.println("Fin del hilo" + this.toString());
+            System.out.println("Fin del Loggeo" );
+        }
+    }
+    
+    public void menuPrincipal(){
+        try{
+            do{
+                opcMenu = entrada.readInt();
+                switch(opcMenu){
+                    case 1:
+                        //Retirar efectivo
+                        System.out.println("opción 1");
+                        break;
+                    case 2:
+                        //Depositar efectivo
+                        System.out.println("opción 2");
+                        break;
+                        
+                    case 3:
+                        //Movimientos y Saldo
+                        System.out.println("opción 3");
+                        break;
+                        
+                    case 4:
+                        //Pagar servicios
+                        System.out.println("opción 4");
+                        break;
+                }
+            }while(opcMenu!=5);
+            System.out.println("Adios!");
+        }catch (IOException e){
+            e.printStackTrace();
         }
     }
 }
+
+    

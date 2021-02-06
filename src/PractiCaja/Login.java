@@ -9,7 +9,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.sql.Connection;
@@ -40,7 +39,6 @@ public class Login extends javax.swing.JFrame {
     private DataOutputStream salida;
     private OutputStream outputStream;
     private DataInputStream entrada;
-    //private ObjectOutputStream objetoSalida;
     
 
     /**
@@ -290,7 +288,6 @@ public class Login extends javax.swing.JFrame {
         } else{
             try{
                 
-                
                 salida.writeInt(1);                                 //Opción
                 salida.writeInt(cliente.getId_Cuenta());            //idCliente
                 salida.writeUTF(nombre);                            //nombreCliente
@@ -298,8 +295,13 @@ public class Login extends javax.swing.JFrame {
                 salida.writeInt(cliente.getSaldo());                //saldoCliente
                 if(entrada.readBoolean()){
                     System.out.println("Todo bien!");
+                    cliente.setId_Cuenta(entrada.readInt());
                     JOptionPane.showMessageDialog(null, "Exito!");
-                    //Crear nueva ventana
+                    PantallaPrincipal p = new PantallaPrincipal();
+                    p.setCliente(cliente);
+                    p.setSocketCliente(socketCliente);
+                    p.setVisible(true);
+                    this.dispose();
                 } else{
                     System.out.println("Hubo un problema, uno muy feo");
                     
@@ -334,6 +336,11 @@ public class Login extends javax.swing.JFrame {
                         cliente = new Cuenta(idCuenta, nombre, saldo);
                         System.out.println("ID : " + cliente.getId_Cuenta() + "Cliente:" + cliente.getNombreCliente() + " Saldo: " + cliente.getSaldo());
                         //Crear nueva ventana y pasar cliente como parametro
+                        PantallaPrincipal p = new PantallaPrincipal();
+                        p.setCliente(cliente);
+                        p.setSocketCliente(socketCliente);
+                        p.setVisible(true);
+                        this.dispose();
                     } else{
                         JOptionPane.showMessageDialog(null, "La contraseña no coincide!");
                     }

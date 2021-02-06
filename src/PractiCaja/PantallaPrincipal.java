@@ -5,17 +5,29 @@
  */
 package PractiCaja;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author PtM
  */
 public class PantallaPrincipal extends javax.swing.JFrame {
+    private Cuenta cliente;
+    private Socket socketCliente;
+    private DataInputStream entrada;
+    private DataOutputStream salida;
 
     /**
      * Creates new form Cliente
      */
     public PantallaPrincipal() {
         initComponents();
+        cliente = new Cuenta();
     }
 
     /**
@@ -28,28 +40,53 @@ public class PantallaPrincipal extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        jLabelNombreUsuario = new javax.swing.JLabel();
+        jButtonRetirarEfectivo = new javax.swing.JButton();
+        jButtonDepositarEfectivo = new javax.swing.JButton();
+        jButtonPagoServicios = new javax.swing.JButton();
+        jButtonMovsySaldo = new javax.swing.JButton();
+        jButtonSalir = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setText("Bienvenido:");
 
-        jLabel2.setText("(Username)");
+        jLabelNombreUsuario.setText("(Username)");
 
-        jButton1.setText("Retirar Efectivo");
+        jButtonRetirarEfectivo.setText("Retirar Efectivo");
+        jButtonRetirarEfectivo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonRetirarEfectivoActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Depositar Efectivo");
+        jButtonDepositarEfectivo.setText("Depositar Efectivo");
+        jButtonDepositarEfectivo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDepositarEfectivoActionPerformed(evt);
+            }
+        });
 
-        jButton3.setText("Pago de Servicios");
+        jButtonPagoServicios.setText("Pago de Servicios");
+        jButtonPagoServicios.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPagoServiciosActionPerformed(evt);
+            }
+        });
 
-        jButton4.setText("Movimientos y Saldo");
+        jButtonMovsySaldo.setText("Movimientos y Saldo");
+        jButtonMovsySaldo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonMovsySaldoActionPerformed(evt);
+            }
+        });
 
-        jButton5.setText("Salir");
+        jButtonSalir.setText("Salir");
+        jButtonSalir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSalirActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -59,13 +96,13 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                 .addGap(61, 61, 61)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton4)
+                        .addComponent(jButtonMovsySaldo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 131, Short.MAX_VALUE)
-                        .addComponent(jButton3))
+                        .addComponent(jButtonPagoServicios))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1)
+                        .addComponent(jButtonRetirarEfectivo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton2)))
+                        .addComponent(jButtonDepositarEfectivo)))
                 .addGap(77, 77, 77))
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -73,10 +110,10 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                         .addGap(102, 102, 102)
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel2))
+                        .addComponent(jLabelNombreUsuario))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(247, 247, 247)
-                        .addComponent(jButton5)))
+                        .addComponent(jButtonSalir)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -85,22 +122,65 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                 .addGap(61, 61, 61)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabelNombreUsuario))
                 .addGap(81, 81, 81)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(jButtonRetirarEfectivo)
+                    .addComponent(jButtonDepositarEfectivo))
                 .addGap(55, 55, 55)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
-                    .addComponent(jButton4))
+                    .addComponent(jButtonPagoServicios)
+                    .addComponent(jButtonMovsySaldo))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 69, Short.MAX_VALUE)
-                .addComponent(jButton5)
+                .addComponent(jButtonSalir)
                 .addGap(36, 36, 36))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButtonRetirarEfectivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRetirarEfectivoActionPerformed
+        try {
+            // TODO add your handling code here:
+            salida.writeInt(1);
+        } catch (IOException ex) {
+            Logger.getLogger(PantallaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButtonRetirarEfectivoActionPerformed
+
+    private void jButtonDepositarEfectivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDepositarEfectivoActionPerformed
+        try{
+            salida.writeInt(2);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_jButtonDepositarEfectivoActionPerformed
+
+    private void jButtonMovsySaldoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMovsySaldoActionPerformed
+        try{
+            salida.writeInt(3);
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_jButtonMovsySaldoActionPerformed
+
+    private void jButtonPagoServiciosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPagoServiciosActionPerformed
+        try{
+            salida.writeInt(4);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_jButtonPagoServiciosActionPerformed
+
+    private void jButtonSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSalirActionPerformed
+        try {
+            // TODO add your handling code here:
+            salida.writeInt(5);
+            this.dispose();
+        } catch (IOException ex) {
+            Logger.getLogger(PantallaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButtonSalirActionPerformed
 
     /**
      * @param args the command line arguments
@@ -138,13 +218,35 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         });
     }
 
+    public void setCliente(Cuenta cliente) {
+        this.cliente = cliente;
+        jLabelNombreUsuario.setText(cliente.getNombreCliente());
+    }
+    
+    public void setSocketCliente(Socket socketCliente) {
+        try {
+            this.socketCliente = socketCliente;
+            entrada = new DataInputStream(socketCliente.getInputStream());
+            salida = new DataOutputStream(socketCliente.getOutputStream());
+        } catch (IOException ex) {
+            Logger.getLogger(PantallaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButtonDepositarEfectivo;
+    private javax.swing.JButton jButtonMovsySaldo;
+    private javax.swing.JButton jButtonPagoServicios;
+    private javax.swing.JButton jButtonRetirarEfectivo;
+    private javax.swing.JButton jButtonSalir;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabelNombreUsuario;
     // End of variables declaration//GEN-END:variables
+
+    /**
+     * @param socketCliente the socketCliente to set
+     */
+    
 }
