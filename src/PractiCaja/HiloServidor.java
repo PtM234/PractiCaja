@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
@@ -28,14 +29,14 @@ public class HiloServidor{
     private Socket cliente;
     private Connection conn;
     private Statement stmt;
+    private PreparedStatement pstmt;
     private Cuenta cuenta;
     private DataInputStream entrada;
     private InputStream inputStream;
     private DataOutputStream salida;
     private OutputStream outputStream;
-//    private ObjectInputStream objectInputStream;
-    private String pass;
-    private int opcMenu, opcLog;
+    private String pass, aDondeDepositar, quienDeposita, sqlUpdate, sqlInsertar;
+    private int opcMenu, opcLog, saldoADepositar;
     private boolean exito = false;
     
     public HiloServidor(Socket c){
@@ -119,8 +120,16 @@ public class HiloServidor{
                         System.out.println("opción 1");
                         break;
                     case 2:
-                        //Depositar efectivo
-                        System.out.println("opción 2");
+                        if(entrada.readBoolean()){
+                            aDondeDepositar = entrada.readUTF();
+                            saldoADepositar = entrada.readInt();
+                            quienDeposita = entrada.readUTF();
+                            sqlInsertar = "Depositó: " + saldoADepositar + " al cliente: " + aDondeDepositar;
+                            stmt.executeUpdate("UPDATE cuentas SET saldo=saldo+" + saldoADepositar + " WHERE nombreCliente ='" + aDondeDepositar + "' ");
+                            java.util.Date myDate = new java.util.Date();
+                            java.sql.Date sqlDate = new java.sql.Date(myDate.getTime());
+                            stmt.executeUpdate("INSERT INTO movimientos VALUES (null, '"+ quienDeposita +"', '" + sqlInsertar + "', '" + sqlDate + "')");
+                        }
                         break;
                         
                     case 3:
@@ -135,10 +144,11 @@ public class HiloServidor{
                 }
             }while(opcMenu!=5);
             System.out.println("Adios!");
-        }catch (IOException e){
+            cliente.close();
+        }catch (IOException e){ 
             e.printStackTrace();
+        } catch (SQLException ex) {
+            Logger.getLogger(HiloServidor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
-
-    

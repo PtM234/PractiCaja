@@ -53,7 +53,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
 
         jLabelNombreUsuario.setText("(Username)");
 
-        jButtonRetirarEfectivo.setText("Retirar Efectivo");
+        jButtonRetirarEfectivo.setText("Realizar Transferencia");
         jButtonRetirarEfectivo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonRetirarEfectivoActionPerformed(evt);
@@ -143,6 +143,8 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         try {
             // TODO add your handling code here:
             salida.writeInt(1);
+            
+            
         } catch (IOException ex) {
             Logger.getLogger(PantallaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -151,6 +153,11 @@ public class PantallaPrincipal extends javax.swing.JFrame {
     private void jButtonDepositarEfectivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDepositarEfectivoActionPerformed
         try{
             salida.writeInt(2);
+            DepositarEfectivo dE = new DepositarEfectivo();
+            dE.setCliente(cliente);
+            dE.setSocketCliente(socketCliente);
+            dE.setVisible(true);
+            this.dispose();
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -176,6 +183,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         try {
             // TODO add your handling code here:
             salida.writeInt(5);
+            socketCliente.close();
             this.dispose();
         } catch (IOException ex) {
             Logger.getLogger(PantallaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
@@ -228,6 +236,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
             this.socketCliente = socketCliente;
             entrada = new DataInputStream(socketCliente.getInputStream());
             salida = new DataOutputStream(socketCliente.getOutputStream());
+            System.out.println("Se pasó el socket: " + socketCliente.getLocalSocketAddress());
         } catch (IOException ex) {
             Logger.getLogger(PantallaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }

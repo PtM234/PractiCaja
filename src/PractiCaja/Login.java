@@ -56,11 +56,7 @@ public class Login extends javax.swing.JFrame {
             salida = new DataOutputStream(outputStream);
             entrada = new DataInputStream(inputStream);
             
-            
-            
-        } catch (SQLException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
+        } catch (SQLException | IOException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -73,7 +69,7 @@ public class Login extends javax.swing.JFrame {
             rs = stmt.executeQuery("SELECT * from cuentas WHERE nombreCliente = '" + usuario + "'");
             rsmd = rs.getMetaData();
             int columnas = rsmd.getColumnCount();
-            System.out.println(columnas);
+            
             if(rs.next()){      //Se posiciona el cursor en la columna donde está el resultado, si es que hay resultados
             if (rs.getString("nombreCliente").equals(usuario)){
                 return true;
