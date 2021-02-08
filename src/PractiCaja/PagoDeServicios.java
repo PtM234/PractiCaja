@@ -5,17 +5,65 @@
  */
 package PractiCaja;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author PtM
  */
 public class PagoDeServicios extends javax.swing.JFrame {
+    private boolean montoBool, telefonoBool;
+    private Cuenta cliente;
+    private Socket socketCliente;
+    private String Servicio;
+    private DataOutputStream salida;
+    private DataInputStream entrada;
+    
+    private int monto, telefono;
+
+    public void setCliente(Cuenta cliente) {
+        this.cliente = cliente;
+        jLabelUsuario.setText("¡Bienvenido "+ cliente.getNombreCliente()+ ", ¿Qué servicio deseas pagar?");
+        jLabelSaldo.setText("Saldo disponible: " + cliente.getSaldo());
+    }
+
+    public void setSocketCliente(Socket socketCliente) {
+        try {
+            this.socketCliente = socketCliente;
+            salida = new DataOutputStream(socketCliente.getOutputStream());
+            entrada = new DataInputStream(socketCliente.getInputStream());
+        } catch (IOException ex) {
+            Logger.getLogger(PagoDeServicios.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     /**
      * Creates new form PagoDeServicios
      */
     public PagoDeServicios() {
         initComponents();
+//        jLabelTelefono.setVisible(false);
+//        jTextFieldTeléfono.setVisible(false);
+        jButtonPagar.setEnabled(false);
+        jComboBoxServicios.removeAllItems();
+        jComboBoxServicios.addItem("Agua");
+        jComboBoxServicios.addItem("Luz");
+        jComboBoxServicios.addItem("Recarga Telefónica");
+        
+    }
+    
+    public void revisarParaHabilitarBoton(){
+        if(montoBool && telefonoBool){
+            jButtonPagar.setEnabled(true);
+        }
     }
 
     /**
@@ -27,21 +75,191 @@ public class PagoDeServicios extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel3 = new javax.swing.JLabel();
+        jTextFieldMonto = new javax.swing.JTextField();
+        jButtonPagar = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        jLabelUsuario = new javax.swing.JLabel();
+        jComboBoxServicios = new javax.swing.JComboBox<>();
+        jLabel2 = new javax.swing.JLabel();
+        jButtonRegresar = new javax.swing.JButton();
+        jLabelTelefono = new javax.swing.JLabel();
+        jTextFieldTeléfono = new javax.swing.JTextField();
+        jLabelSaldo = new javax.swing.JLabel();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel3.setText("Monto a pagar:");
+
+        jTextFieldMonto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldMontoActionPerformed(evt);
+            }
+        });
+        jTextFieldMonto.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTextFieldMontoKeyPressed(evt);
+            }
+        });
+
+        jButtonPagar.setText("¡Pagar!");
+        jButtonPagar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPagarActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setFont(new java.awt.Font("Yu Gothic Medium", 0, 36)); // NOI18N
+        jLabel4.setText("Pago de Servicios");
+
+        jLabelUsuario.setText("¡Bienvenido (username), ¿Qué servicio deseas pagar?");
+
+        jComboBoxServicios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBoxServicios.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxServiciosActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Servicio");
+
+        jButtonRegresar.setText("< Pantalla Principal");
+        jButtonRegresar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonRegresarActionPerformed(evt);
+            }
+        });
+
+        jLabelTelefono.setText("Teléfono:");
+
+        jTextFieldTeléfono.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTextFieldTeléfonoKeyPressed(evt);
+            }
+        });
+
+        jLabelSaldo.setText("Saldo: [Saldo]");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 530, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 33, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(123, 123, 123)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(jLabel2)
+                                            .addComponent(jLabel3)
+                                            .addComponent(jLabelTelefono))
+                                        .addGap(30, 30, 30)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(jComboBoxServicios, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jButtonPagar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(jTextFieldMonto)
+                                            .addComponent(jTextFieldTeléfono)))
+                                    .addComponent(jLabelUsuario)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(6, 6, 6)
+                                        .addComponent(jLabelSaldo)))
+                                .addGap(56, 56, 56))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButtonRegresar)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 365, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabelUsuario)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabelSaldo)
+                .addGap(2, 2, 2)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jComboBoxServicios, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addGap(29, 29, 29)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jTextFieldMonto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelTelefono)
+                    .addComponent(jTextFieldTeléfono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                .addComponent(jButtonPagar)
+                .addGap(15, 15, 15)
+                .addComponent(jButtonRegresar))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButtonPagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPagarActionPerformed
+        try {
+            if (cliente.getSaldo()<Integer.parseInt(jTextFieldMonto.getText())){
+                JOptionPane.showMessageDialog(null, "No tienes suficiente dinero para hacer eso!");
+            }else{
+            salida.writeBoolean(true);
+            salida.writeInt(Integer.parseInt(jTextFieldMonto.getText()));
+            salida.writeUTF(cliente.getNombreCliente());
+            if (jComboBoxServicios.getSelectedItem().toString().equals("Recarga Telefónica")){
+                salida.writeUTF(jComboBoxServicios.getSelectedItem().toString() + " de $"+ jTextFieldMonto.getText() + " al número: " + jTextFieldTeléfono.getText());
+                JOptionPane.showMessageDialog(null, "¡Se realizó la recarga!");
+            } else{
+            salida.writeUTF("Pago de: " + jComboBoxServicios.getSelectedItem().toString() + " por el monto de: " + jTextFieldMonto.getText());
+            JOptionPane.showMessageDialog(null, "¡Se pagó el servicio!");
+            }
+            PantallaPrincipal p = new PantallaPrincipal();
+            p.setCliente(cliente);
+            p.setSocketCliente(socketCliente);
+            p.setVisible(true);
+            this.dispose();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(PagoDeServicios.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButtonPagarActionPerformed
+
+    private void jTextFieldMontoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldMontoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldMontoActionPerformed
+
+    private void jComboBoxServiciosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxServiciosActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBoxServiciosActionPerformed
+
+    private void jButtonRegresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRegresarActionPerformed
+        try {
+            salida.writeBoolean(false);
+            PantallaPrincipal p = new PantallaPrincipal();
+            p.setCliente(cliente);
+            p.setSocketCliente(socketCliente);
+            p.setVisible(true);
+            this.dispose();
+        } catch (IOException ex) {
+            Logger.getLogger(TransferenciaEfectivo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButtonRegresarActionPerformed
+
+    private void jTextFieldMontoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldMontoKeyPressed
+        montoBool = true;
+        revisarParaHabilitarBoton();
+    }//GEN-LAST:event_jTextFieldMontoKeyPressed
+
+    private void jTextFieldTeléfonoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldTeléfonoKeyPressed
+        telefonoBool = true;
+        revisarParaHabilitarBoton();
+    }//GEN-LAST:event_jTextFieldTeléfonoKeyPressed
 
     /**
      * @param args the command line arguments
@@ -79,5 +297,16 @@ public class PagoDeServicios extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonPagar;
+    private javax.swing.JButton jButtonRegresar;
+    private javax.swing.JComboBox<String> jComboBoxServicios;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabelSaldo;
+    private javax.swing.JLabel jLabelTelefono;
+    private javax.swing.JLabel jLabelUsuario;
+    private javax.swing.JTextField jTextFieldMonto;
+    private javax.swing.JTextField jTextFieldTeléfono;
     // End of variables declaration//GEN-END:variables
 }

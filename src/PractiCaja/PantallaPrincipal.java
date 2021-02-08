@@ -9,6 +9,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,13 +25,20 @@ public class PantallaPrincipal extends javax.swing.JFrame {
     private Socket socketCliente;
     private DataInputStream entrada;
     private DataOutputStream salida;
+    private Connection conn = null;
+    private static Statement stmt = null;
 
     /**
      * Creates new form Cliente
      */
     public PantallaPrincipal() {
-        initComponents();
-        cliente = new Cuenta();
+        try {
+            initComponents();
+            cliente = new Cuenta();
+            conn = DriverManager.getConnection("jdbc:mysql://localhost/clientes","root","");
+        } catch (SQLException ex) {
+            Logger.getLogger(PantallaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -41,11 +52,13 @@ public class PantallaPrincipal extends javax.swing.JFrame {
 
         jLabel1 = new javax.swing.JLabel();
         jLabelNombreUsuario = new javax.swing.JLabel();
-        jButtonRetirarEfectivo = new javax.swing.JButton();
-        jButtonDepositarEfectivo = new javax.swing.JButton();
+        jButtonDepositar = new javax.swing.JButton();
+        jButtonTransferencia = new javax.swing.JButton();
         jButtonPagoServicios = new javax.swing.JButton();
         jButtonMovsySaldo = new javax.swing.JButton();
         jButtonSalir = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -53,17 +66,17 @@ public class PantallaPrincipal extends javax.swing.JFrame {
 
         jLabelNombreUsuario.setText("(Username)");
 
-        jButtonRetirarEfectivo.setText("Realizar Transferencia");
-        jButtonRetirarEfectivo.addActionListener(new java.awt.event.ActionListener() {
+        jButtonDepositar.setText("Depositar Efectivo");
+        jButtonDepositar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonRetirarEfectivoActionPerformed(evt);
+                jButtonDepositarActionPerformed(evt);
             }
         });
 
-        jButtonDepositarEfectivo.setText("Depositar Efectivo");
-        jButtonDepositarEfectivo.addActionListener(new java.awt.event.ActionListener() {
+        jButtonTransferencia.setText("Realizar Transferencia");
+        jButtonTransferencia.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonDepositarEfectivoActionPerformed(evt);
+                jButtonTransferenciaActionPerformed(evt);
             }
         });
 
@@ -74,7 +87,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
             }
         });
 
-        jButtonMovsySaldo.setText("Movimientos y Saldo");
+        jButtonMovsySaldo.setText("Movimientos");
         jButtonMovsySaldo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonMovsySaldoActionPerformed(evt);
@@ -88,50 +101,66 @@ public class PantallaPrincipal extends javax.swing.JFrame {
             }
         });
 
+        jLabel2.setFont(new java.awt.Font("Yu Gothic Medium", 0, 36)); // NOI18N
+        jLabel2.setText("Pantalla Principal");
+
+        jLabel3.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+        jLabel3.setText("Por favor elija una opción");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(61, 61, 61)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButtonMovsySaldo)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 131, Short.MAX_VALUE)
-                        .addComponent(jButtonPagoServicios))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButtonRetirarEfectivo)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonDepositarEfectivo)))
-                .addGap(77, 77, 77))
             .addGroup(layout.createSequentialGroup()
+                .addGap(61, 61, 61)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(102, 102, 102)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButtonMovsySaldo)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 172, Short.MAX_VALUE)
+                                .addComponent(jButtonPagoServicios))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButtonDepositar)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButtonTransferencia)))
+                        .addGap(77, 77, 77))
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabelNombreUsuario))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(247, 247, 247)
-                        .addComponent(jButtonSalir)))
+                        .addComponent(jLabelNombreUsuario)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(247, 247, 247)
+                .addComponent(jButtonSalir)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel2))
+                .addGap(98, 98, 98))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(61, 61, 61)
+                .addGap(50, 50, 50)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jLabelNombreUsuario))
-                .addGap(81, 81, 81)
+                .addGap(16, 16, 16)
+                .addComponent(jLabel3)
+                .addGap(32, 32, 32)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButtonRetirarEfectivo)
-                    .addComponent(jButtonDepositarEfectivo))
+                    .addComponent(jButtonDepositar)
+                    .addComponent(jButtonTransferencia))
                 .addGap(55, 55, 55)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonPagoServicios)
                     .addComponent(jButtonMovsySaldo))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 69, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
                 .addComponent(jButtonSalir)
                 .addGap(36, 36, 36))
         );
@@ -139,33 +168,41 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButtonRetirarEfectivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRetirarEfectivoActionPerformed
-        try {
-            // TODO add your handling code here:
-            salida.writeInt(1);
-            
-            
-        } catch (IOException ex) {
-            Logger.getLogger(PantallaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_jButtonRetirarEfectivoActionPerformed
-
-    private void jButtonDepositarEfectivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDepositarEfectivoActionPerformed
+    private void jButtonDepositarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDepositarActionPerformed
         try{
-            salida.writeInt(2);
-            DepositarEfectivo dE = new DepositarEfectivo();
-            dE.setCliente(cliente);
-            dE.setSocketCliente(socketCliente);
-            dE.setVisible(true);
+            salida.writeInt(1);
+            DepositarEfectivo ta = new DepositarEfectivo();
+            ta.setCliente(cliente);
+            ta.setSocketCliente(socketCliente);
+            ta.setVisible(true);
             this.dispose();
         }catch (IOException e){
             e.printStackTrace();
         }
-    }//GEN-LAST:event_jButtonDepositarEfectivoActionPerformed
+    }//GEN-LAST:event_jButtonDepositarActionPerformed
+
+    private void jButtonTransferenciaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonTransferenciaActionPerformed
+        try {
+            // TODO add your handling code here:
+            salida.writeInt(2);
+            TransferenciaEfectivo dE = new TransferenciaEfectivo();
+            dE.setCliente(cliente);
+            dE.setSocketCliente(socketCliente);
+            dE.setVisible(true);
+            this.dispose();
+        } catch (IOException ex) {
+            Logger.getLogger(PantallaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButtonTransferenciaActionPerformed
 
     private void jButtonMovsySaldoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMovsySaldoActionPerformed
         try{
             salida.writeInt(3);
+            Movimientos ms = new Movimientos();
+            ms.setSocketCliente(socketCliente);
+            ms.setCliente(cliente);
+            ms.setVisible(true);
+            this.dispose();
         } catch(IOException e){
             e.printStackTrace();
         }
@@ -174,6 +211,11 @@ public class PantallaPrincipal extends javax.swing.JFrame {
     private void jButtonPagoServiciosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPagoServiciosActionPerformed
         try{
             salida.writeInt(4);
+            PagoDeServicios ps = new PagoDeServicios();
+            ps.setCliente(cliente);
+            ps.setSocketCliente(socketCliente);
+            ps.setVisible(true);
+            this.dispose();
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -229,6 +271,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
     public void setCliente(Cuenta cliente) {
         this.cliente = cliente;
         jLabelNombreUsuario.setText(cliente.getNombreCliente());
+        cliente.revisarSaldo(conn, stmt);
     }
     
     public void setSocketCliente(Socket socketCliente) {
@@ -245,12 +288,14 @@ public class PantallaPrincipal extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButtonDepositarEfectivo;
+    private javax.swing.JButton jButtonDepositar;
     private javax.swing.JButton jButtonMovsySaldo;
     private javax.swing.JButton jButtonPagoServicios;
-    private javax.swing.JButton jButtonRetirarEfectivo;
     private javax.swing.JButton jButtonSalir;
+    private javax.swing.JButton jButtonTransferencia;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabelNombreUsuario;
     // End of variables declaration//GEN-END:variables
 
